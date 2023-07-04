@@ -15,8 +15,8 @@ def box_cal(width,height):
     # Define the dimensions of the image
 
     # Define the number of rows and columns
-    rows = 10
-    cols = 10
+    rows = 15
+    cols = 15
 
     # Compute the width and height of each box
     box_width = width // cols
@@ -51,7 +51,10 @@ def box_cal(width,height):
             )
             boxes.append(new_box)
     return boxes
-
+def draw_box(boxes):
+       for i in range(len(boxes)):
+            cv2.circle(depth_colormap, (frame_box[i].mid_x,frame_box[i].mid_y), 4, (0, 255, 255),-1)
+       pass
 
 max_distance = 2.0 # Declare number of pixels to stop
 pipeline = rs.pipeline()
@@ -74,7 +77,8 @@ while (True):
     depth_image = np.asanyarray(depth_frame.get_data())
     # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
     depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-    cv2.imshow('RealSense', depth_colormap)
+    draw_box(frame_box)
+    # cv2.imshow('RealSense', depth_colormap)
     # distances = depth_data.flatten().tolist()
     counter = 0
     obj_max_distance = 100000.0
@@ -82,7 +86,9 @@ while (True):
     goOrStop = True
 
     # start_time = datetime.datetime.now()
-    for k in range(len(frame_box)):
+    for k in range((15*3),len(frame_box)-(15*1)):
+        if frame_box[k].mid_x <=2:
+            continue
         current_distance = depth_frame.get_distance(frame_box[k].mid_x,frame_box[k].mid_y)
         # if depth_frame.get_distance(frame_box[k].mid_x,frame_box[k].mid_y) < max_distance:
             # print("Object Found in region ", k)
@@ -92,21 +98,25 @@ while (True):
                     # test_distance = distances[i * 1280 + j]
         if 770<frame_box[k].mid_x<848 and current_distance <= 0.62 and current_distance != 0: 
                         obj_max_distance = current_distance
+                        cv2.circle(depth_colormap, (frame_box[k].mid_x,frame_box[k].mid_y), 4, (0, 0, 255),-1)
                         print("Object at A")
                         goOrStop = False
                         break
         if 660<frame_box[k].mid_x<769 and current_distance <= 0.71 and current_distance != 0: 
                         obj_max_distance = current_distance
+                        cv2.circle(depth_colormap, (frame_box[k].mid_x,frame_box[k].mid_y), 4, (0, 0, 255),-1)
                         goOrStop = False
                         print("Object at B")
                         break
-        if 460<frame_box[k].mid_x<659 and current_distance <= 0.85 and current_distance != 0: 
+        if 460<frame_box[k].mid_x<659 and current_distance <= 0.82 and current_distance != 0: 
                         obj_max_distance = current_distance
+                        cv2.circle(depth_colormap, (frame_box[k].mid_x,frame_box[k].mid_y), 4, (0, 0, 255),-1)
                         goOrStop = False
                         print("Object at C")
                         break
-        if 110<frame_box[k].mid_x<459 and current_distance <= 1.35 and current_distance != 0: 
+        if 110<frame_box[k].mid_x<459 and current_distance <= 1.18 and current_distance != 0: 
                         obj_max_distance = current_distance
+                        cv2.circle(depth_colormap, (frame_box[k].mid_x,frame_box[k].mid_y), 4, (0, 0, 255),-1)
                         goOrStop = False
                         print("Object at D")
                         break
@@ -118,7 +128,7 @@ while (True):
                 #     break
         # if counter == 50000:
         #             break
-
+    cv2.imshow('RealSense', depth_colormap)
     # end_time = datetime.datetime.now()
     # time_diff = end_time- start_time
     # print("Time after ini is ", time_diff.total_seconds())
